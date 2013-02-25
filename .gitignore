@@ -1,0 +1,15 @@
+.DS_Store
+*.pyc
+*.egg-info
+
+#### Eclipse & PyDev
+.project
+.pydevproject
+#### certificate folder
+certs/
+#### config file
+config.json
+
+## twisted
+twistd.log
+twistd.pid

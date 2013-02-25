@@ -1,0 +1,20 @@
+{
+    "tokens": [
+            "token1",
+            "token2"
+    ],
+    "autoprovision": [
+        {
+            "app_id": "sandbox:com.ficture.ficturebeta",
+            "cert": "/<path>/development-com.ficture.ficturebeta.pem",
+            "environment": "sandbox",
+            "timeout": 15
+        },
+        {
+            "app_id": "production:com.ficture.ficturebeta",
+            "cert": "/<path>/production-com.ficture.ficturebeta.pem",
+            "environment": "production",
+            "timeout": 15
+        }
+    ]
+}

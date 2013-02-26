@@ -24,7 +24,7 @@ import twisted.web
 
 logging.basicConfig()
 log = logging.getLogger('spring.logger')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),'config.json')
 

@@ -21,6 +21,6 @@ Installation
 
 	$ twistd -r default web --class=pyapns.server.APNSServer --port=7077
 	
-1. run the script
+1. run the script; example:
 
-	$ python push.py
+	$ ./spring.py -a 'hello spring!' -b 42 -s default -i 'sandbox:my_awesome_app'

@@ -86,10 +86,9 @@ def push(app_id, message=None, badge=0, sound=None, custom=None):
     configure({'HOST': 'http://localhost:7077/'})
     if 'autoprovision' in config:
         for app in config['autoprovision']:
-            log.debug('[%(id)s] cert: %(cert)s (%(env)s)' % {'id': app['app_id'],
-                                                             'cert': app['cert'],
-                                                             'env': app['environment']})
-            if os.path.exists(app['cert']):
+            app_id = app['app_id']
+            if app_id == app_id and os.path.exists(app['cert']):
+                log.debug('found %s' % app_id)
                 provision(app['app_id'], open(app['cert']).read(), app['environment'])
             else:
                 log.error('no file at %s found!' % app['cert'])
@@ -112,7 +111,7 @@ def push(app_id, message=None, badge=0, sound=None, custom=None):
     notifications = []
     for token in config['tokens']:
         notifications.append(notification)
-    notify(app_id, config['tokens'], notifications, async=True)
+    notify(app_id, config['tokens'], notifications, async=False)
 
 
 if __name__ == '__main__':
@@ -121,6 +120,7 @@ if __name__ == '__main__':
     parser.add_option('-b', '--badge', dest='badge', help='badge number; \'0\' if you want to clear the app\'s current badge')
     parser.add_option('-s', '--sound', dest='sound', help='sound file')
     parser.add_option('-c', '--custom', dest='custom', help='custom key/value pairs')
+    parser.add_option('-i', '--id', dest='app_id', help='application ID, if you have multiple apps registered')
     ## handle arguments
     (options, args) = parser.parse_args()
     if len(args) == 4:
@@ -144,5 +144,5 @@ if __name__ == '__main__':
     if options.sound and options.sound.find('.caf') == -1:
         options.sound += '.caf'
         
-    ## TODO: get app id
-    push('production:grepolite', options.alert, options.badge, options.sound, options.custom)
+    log.debug('selected app: %s' % options.app_id)
+    push(options.app_id, options.alert, options.badge, options.sound, options.custom)

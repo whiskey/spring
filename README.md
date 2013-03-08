@@ -7,15 +7,21 @@ Sends remote push notifications to registered devices. Build for local debug and
 Installation
 ------------
 1. get [Python](http://www.python.org/) (most Unix-like OS' come with python pre-installed)
+
 1. [pyapns](https://github.com/samuraisam/pyapns) (Apple push notification handler)
 
-    $ pip install pyapns
+1. if you don't have pip installed, get it via easy_install
+	$ sudo easy_install pip
+
+    $ sudo pip install pyapns
 1. [twisted](http://twistedmatrix.com/trac/) (required by pyapns)
 
-    $ pip install twisted
+    $ sudo pip install twisted
 1. [pyOpenSSL](https://pypi.python.org/pypi/pyOpenSSL) (required by pyapns)
 
-    $ pip install pyOpenSSL
+    $ sudo pip install pyOpenSSL
+    
+1. copy the config.json.example file to config.json and adjust to your settings
     
 1. start twistd service; example:
 

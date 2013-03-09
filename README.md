@@ -21,7 +21,7 @@ Installation
 
     $ sudo pip install pyOpenSSL
     
-1. copy the config.json.example file to config.json and adjust to your settings
+1. copy the _config.json.example_ file to _config.json_ and adjust to your settings
     
 1. start twistd service; example:
 

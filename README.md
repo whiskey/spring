@@ -21,8 +21,12 @@ Installation
 
     $ sudo pip install pyOpenSSL
     
+1. if you need to convert your export of the push certificate and private key to a .pem file use
+
+    $ openssl pkcs12 -in certs.p12 -out certs.pem -nodes
+
 1. copy the _config.json.example_ file to _config.json_ and adjust to your settings
-    
+
 1. start twistd service; example:
 
 	$ twistd -r default web --class=pyapns.server.APNSServer --port=7077

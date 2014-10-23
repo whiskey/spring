@@ -1,12 +1,12 @@
 #!/usr/bin/python
-'''
+"""
 Spring - simple push notification trigger
 
 @author: carsten
 
 based on pyapns
 @see https://github.com/samuraisam/pyapns
-'''
+"""
 
 from SocketServer import TCPServer
 from optparse import OptionParser
@@ -21,18 +21,18 @@ import twisted.application.internet
 import twisted.web
 
 
-
 logging.basicConfig()
 log = logging.getLogger('spring.logger')
 log.setLevel(logging.INFO)
 
 config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),'config.json')
 
+
 def init_twisted():
-    '''
+    """
     startup twisted service; alternative: manually start twistd
     $ twistd -r default web --class=pyapns.server.APNSServer --port=7077  #simple example
-    '''
+    """
     with open(os.path.abspath(config_file)) as f:
         config = pyapns._json.loads(f.read())
     
@@ -81,7 +81,7 @@ def push(app_id, message=None, badge=0, sound=None, custom=None):
         config = pyapns._json.loads(f.read())
     
     ## configure on the fly
-    if pyapns.client.OPTIONS['CONFIGURED'] == False:
+    if not pyapns.client.OPTIONS['CONFIGURED']:
         configure({'HOST': 'http://localhost:7077/'})
         if 'autoprovision' in config:
             for app in config['autoprovision']:
@@ -100,7 +100,7 @@ def push(app_id, message=None, badge=0, sound=None, custom=None):
     if badge:
         notification['aps'].update({'badge': int(badge)})
     if sound:
-        notification['aps'].update({'sound':sound})
+        notification['aps'].update({'sound': sound})
     if custom:    
         for key in custom:
             notification.update({key:custom[key]})

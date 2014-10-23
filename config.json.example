@@ -5,14 +5,14 @@
     ],
     "autoprovision": [
         {
-            "app_id": "sandbox:com.ficture.ficturebeta",
-            "cert": "/<path>/development-com.ficture.ficturebeta.pem",
+            "app_id": "sandbox:app",
+            "cert": "certs/development-app.pem",
             "environment": "sandbox",
             "timeout": 15
         },
         {
-            "app_id": "production:com.ficture.ficturebeta",
-            "cert": "/<path>/production-com.ficture.ficturebeta.pem",
+            "app_id": "production:app",
+            "cert": "certs/production-app.pem",
             "environment": "production",
             "timeout": 15
         }

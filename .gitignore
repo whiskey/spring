@@ -5,6 +5,7 @@
 #### Eclipse & PyDev
 .project
 .pydevproject
+.idea
 #### certificate folder
 certs/
 #### config file

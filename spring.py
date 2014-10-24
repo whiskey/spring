@@ -23,7 +23,7 @@ import twisted.web
 
 logging.basicConfig()
 log = logging.getLogger('spring.logger')
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),'config.json')
 
@@ -44,7 +44,9 @@ def init_twisted():
     # get automatic provisioning
     if 'autoprovision' in config:
         for app in config['autoprovision']:
-            service.xmlrpc_provision(app['app_id'], app['cert'], app['environment'], 
+            service.xmlrpc_provision(app['app_id'],
+                                     app['cert'],
+                                     app['environment'],
                                      app['timeout'])
     
     # get port from config or 7077
@@ -55,21 +57,36 @@ def init_twisted():
     
     resource.putChild('', service)
     site = twisted.web.server.Site(resource)
-    
+    assert port > 0, "invalid port"
+    assert site is not None, "no site"
+
+    log.debug("port %s; site %s" % (port, site))
     server = TCPServer(port, site)
+    assert server is not None, "no server"
     server.setServiceParent(application)
 
+def request_feedback():
+    if not pyapns.client.OPTIONS['CONFIGURED']:
+        log.info('configuration on the fly')
+        configure({'HOST': 'http://localhost:7077/'})
+        with open(os.path.abspath(config_file)) as f:
+            config = pyapns._json.loads(f.read())
+            for app in config['autoprovision']:
+                app_id = app['app_id']
+                log.info("requesting feeback for %s" % app_id)
+                pyapns.feedback(app_id, async=False, callback=got_feedback, errback=got_error)
 
 def got_feedback(tuples):
-    if not tuples: return
+    if not tuples:
+        log.debug('no invalid tuples - great')
+        return
     log.debug('## tokens not reached:')
     for t in tuples:
-        log.debug('%s - %s' % (t[0],t[1]))
+        log.debug('%s - %s' % (t[0], t[1]))
     
     
 def got_error(error):
-    log.error('## Error handler')
-    log.error(error)
+    log.error("## Error handler\n%s" % error)
 
 
 def push(app_id, message=None, badge=0, sound=None, custom=None):
@@ -82,17 +99,15 @@ def push(app_id, message=None, badge=0, sound=None, custom=None):
     
     ## configure on the fly
     if not pyapns.client.OPTIONS['CONFIGURED']:
+        log.info('configuration on the fly')
         configure({'HOST': 'http://localhost:7077/'})
         if 'autoprovision' in config:
             for app in config['autoprovision']:
-                app_id = app['app_id']
-                if app_id == app_id and os.path.exists(app['cert']):
-                    log.debug('found %s' % app_id)
+                if app['app_id'] == app_id:
+                    log.info('found configuration for %s' % app_id)
+                    assert os.path.exists(app['cert']) is True, "no file found at %s" % app['cert']
                     provision(app['app_id'], open(app['cert']).read(), app['environment'])
-                else:
-                    log.error('no file at %s found!' % app['cert'])
-        pyapns.feedback(app_id, async=True, callback=got_feedback, errback=got_error)
-    
+
     ## create notification
     notification = {'aps':{}}
     if message: 
@@ -104,12 +119,13 @@ def push(app_id, message=None, badge=0, sound=None, custom=None):
     if custom:    
         for key in custom:
             notification.update({key:custom[key]})
+
     log.debug('[%s] %d token; notification:\n%s\n' % (app_id, len(config['tokens']), notification))
     
-    notifications = []
-    for token in config['tokens']:
-        notifications.append(notification)
-    notify(app_id, config['tokens'], notifications, async=False)
+    # notifications = []
+    # for token in config['tokens']:
+    #     notifications.append(notification)
+    notify(app_id, config['tokens'], notification, async=False)
 
 
 if __name__ == '__main__':
@@ -124,16 +140,21 @@ if __name__ == '__main__':
 #                        help='custom key/value pairs')
     parser.add_argument('-i', '--id', dest='app_id', 
                         help='application ID, if you have multiple apps registered')
+    parser.add_argument('-f', '--feedback', dest='feedback', action='store_true', help='feedback service')
+    parser.set_defaults(feedback=False)
     parser.add_argument('--version', action='version', version='spring v1.0')
     args = parser.parse_args()
-    
+
     ## app id is required
-    if args.app_id == None:
+    if args.app_id is None and args.feedback is False:
         parser.error('must define target application')
-    
-    ## add file extension to sound file if missing
-    if args.sound and args.sound.find('.caf') == -1:
-        args.sound += '.caf'
-        
-    ## TODO: handle custom key/value pairs (pickle, json, ...)
-    push(args.app_id, args.alert, args.badge, args.sound, None)
+
+    if args.feedback is True:
+        request_feedback()
+    else:
+        ## add file extension to sound file if missing
+        if args.sound and args.sound.find('.caf') == -1:
+            args.sound += '.caf'
+
+        ## TODO: handle custom key/value pairs (pickle, json, ...)
+        push(args.app_id, args.alert, args.badge, args.sound, None)
